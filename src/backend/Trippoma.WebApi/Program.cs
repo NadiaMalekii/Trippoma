@@ -1,15 +1,46 @@
-using Trippoma.Infrastructure;
-using Trippoma.Application;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using System.Text;
+using Trippoma.Application;
+using Trippoma.Application.Common.Interfaces;
+using Trippoma.Infrastructure;
+using Trippoma.Infrastructure.Persistence;
+using Trippoma.Infrastructure.Persistence.Seed;
+using Trippoma.WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructure(builder.Configuration);
+
 builder.Services.AddApplication();
+
 builder.Services.AddControllers();
+
 builder.Services.AddOpenApi();
 
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -46,12 +77,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "Trippoma API v1");
-        options.RoutePrefix = "swagger"; 
+        options.RoutePrefix = "swagger";
     });
+
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await context.Database.MigrateAsync();
+    await DataSeeder.SeedAsync(context);
 }
 
-app.UseHttpsRedirection();
+app.UseAuthentication();
+
 app.UseAuthorization();
+
+app.UseHttpsRedirection();
+
 app.MapControllers();
 
 app.Run();
