@@ -6,11 +6,11 @@ public class Place : AuditableEntity
 {
     public required string Name { get; set; }
     public required string Description { get; set; }
-    public required string City { get; set; }          
+    public required string City { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public Guid CategoryId { get; set; }
-    public required Category Category { get; set; }
+    public Category Category { get; set; } = null!;
     public double AverageRating { get; set; } = 0;
     public int ReviewsCount { get; set; } = 0;
     public ICollection<PlaceImage> Images { get; set; } = new List<PlaceImage>();
