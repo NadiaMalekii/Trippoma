@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Trippoma.Domain\Trippoma.Domain.csproj" />
+    <ProjectReference Include="..\Trippoma.Application\Trippoma.Application.csproj" />
   </ItemGroup>
 
 </Project>
