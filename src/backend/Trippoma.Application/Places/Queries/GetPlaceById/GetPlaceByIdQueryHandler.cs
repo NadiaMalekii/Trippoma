@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Trippoma.Application.Common.Interfaces;
-using Trippoma.Application.Common.NotFoundException;
+using Trippoma.Application.Common.Exceptions;
 using Trippoma.Application.Places.DTOs;
 using Trippoma.Domain.Entities;
 
