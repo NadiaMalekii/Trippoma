@@ -1,4 +1,4 @@
-﻿namespace Trippoma.Application.Common.NotFoundException;
+﻿namespace Trippoma.Application.Common.Exceptions;
 
 public class NotFoundException : Exception
 {
