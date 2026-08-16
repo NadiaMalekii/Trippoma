@@ -1,2 +1,9 @@
 <Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/backend/">
+    <Project Path="src/backend/Trippoma.Application/Trippoma.Application.csproj" Id="20fea2d7-e16a-430e-8484-b41ffea5136f" />
+    <Project Path="src/backend/Trippoma.Domain/Trippoma.Domain.csproj" Id="2e960bcf-84ac-4aca-89c2-78639afe1036" />
+    <Project Path="src/backend/Trippoma.Infrastructure/Trippoma.Infrastructure.csproj" Id="54a48b27-c69f-4e2a-840c-e4455de48b83" />
+    <Project Path="src/backend/Trippoma.WebApi/Trippoma.WebApi.csproj" Id="7e954249-629d-4d05-9eac-127e6b14df5c" />
+  </Folder>
 </Solution>

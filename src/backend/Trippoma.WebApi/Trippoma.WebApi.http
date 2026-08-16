@@ -1,0 +1,6 @@
+@Trippoma.WebApi_HostAddress = http://localhost:5081
+
+GET {{Trippoma.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
