@@ -1,0 +1,74 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Work+Sans:wght@400;500;600;700&family=Zilla+Slab:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #ede3ce;
+  background: #0c1714;
+  font-family: "Work Sans", system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: #0c1714;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: 2px solid #c9a227;
+  outline-offset: 3px;
+}
+
+::selection {
+  color: #16231f;
+  background: #c9a227;
+}
+
+@layer components {
+  .atlas-grid {
+    background-image: linear-gradient(rgba(48, 71, 62, 0.18) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(48, 71, 62, 0.18) 1px, transparent 1px);
+    background-size: 42px 42px;
+  }
+
+  .eyebrow {
+    @apply font-mono text-[0.68rem] uppercase tracking-[0.2em] text-gold;
+  }
+
+  .quiet-scrollbar {
+    scrollbar-color: #30473e transparent;
+    scrollbar-width: thin;
+  }
+
+  .quiet-scrollbar::-webkit-scrollbar {
+    height: 5px;
+    width: 5px;
+  }
+
+  .quiet-scrollbar::-webkit-scrollbar-thumb {
+    background: #30473e;
+    border-radius: 999px;
+  }
+}
