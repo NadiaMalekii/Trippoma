@@ -71,4 +71,9 @@ a:focus-visible {
     background: #30473e;
     border-radius: 999px;
   }
+
+  .place-card {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 360px;
+  }
 }
