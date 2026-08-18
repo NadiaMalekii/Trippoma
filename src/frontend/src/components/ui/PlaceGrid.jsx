@@ -1,16 +1,17 @@
+import { memo } from "react";
 import ApiError from "./ApiError";
 import EmptyState from "./EmptyState";
 import PlaceCard from "./PlaceCard";
 import SkeletonCard from "./SkeletonCard";
 
-export default function PlaceGrid({
+function PlaceGrid({
   places,
   loading,
   error,
   skeletonCount = 3,
   emptyMessage,
   onReset,
-  favoriteIds,
+  favoriteIdSet,
   onToggleFavorite,
   onOpenPlace,
 }) {
@@ -27,7 +28,7 @@ export default function PlaceGrid({
             <PlaceCard
               key={place.id}
               place={place}
-              isFavorite={favoriteIds.includes(place.id)}
+              isFavorite={favoriteIdSet.has(place.id)}
               onToggleFavorite={onToggleFavorite}
               onOpen={onOpenPlace}
             />
@@ -39,3 +40,5 @@ export default function PlaceGrid({
     </>
   );
 }
+
+export default memo(PlaceGrid);
