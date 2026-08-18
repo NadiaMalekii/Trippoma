@@ -5,7 +5,7 @@ export default function Hero({ featuredPlace, onExplore, onOpenPlace }) {
   return (
     <section className="relative isolate overflow-hidden border-b border-line/70">
       <div className="absolute inset-0">
-        <img src={featuredPlace?.image || DEFAULT_IMAGE} alt="" onError={imageError} className="h-full w-full object-cover" fetchPriority="high" />
+         <img src={featuredPlace?.image || DEFAULT_IMAGE} alt="" onError={imageError} className="h-full w-full object-cover" fetchPriority="high" decoding="async" />
         <div className="absolute inset-0 bg-gradient-to-r from-night via-night/80 to-night/20" />
         <div className="absolute inset-0 bg-gradient-to-t from-night via-transparent to-night/25" />
       </div>
