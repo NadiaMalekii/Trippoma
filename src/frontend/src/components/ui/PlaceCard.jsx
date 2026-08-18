@@ -1,9 +1,10 @@
+import { memo } from "react";
 import { Heart, MapPin } from "lucide-react";
 import { imageError } from "../../utils/places";
 
-export default function PlaceCard({ place, isFavorite, onToggleFavorite, onOpen }) {
+function PlaceCard({ place, isFavorite, onToggleFavorite, onOpen }) {
   return (
-    <article className="group overflow-hidden rounded-2xl border border-line bg-surface transition duration-300 hover:-translate-y-1 hover:border-muted hover:shadow-soft">
+    <article className="place-card group overflow-hidden rounded-2xl border border-line bg-surface transition duration-300 hover:-translate-y-1 hover:border-muted hover:shadow-soft">
       <div className="relative h-56 overflow-hidden">
         <button
           type="button"
@@ -15,6 +16,7 @@ export default function PlaceCard({ place, isFavorite, onToggleFavorite, onOpen 
             src={place.image}
             alt={place.name}
             loading="lazy"
+            decoding="async"
             onError={imageError}
             className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
           />
@@ -47,3 +49,5 @@ export default function PlaceCard({ place, isFavorite, onToggleFavorite, onOpen 
     </article>
   );
 }
+
+export default memo(PlaceCard);
