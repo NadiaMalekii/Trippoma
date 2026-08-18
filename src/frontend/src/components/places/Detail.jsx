@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Heart, LoaderCircle, MapPin } from "lucide-react";
 import { DEFAULT_IMAGE, imageError } from "../../utils/places";
 import ApiError from "../ui/ApiError";
 import ContourDivider from "../ui/ContourDivider";
 import GoogleMap from "../ui/GoogleMap";
 
-export default function Detail({ place, loading, error, onBack, isFavorite, onToggleFavorite }) {
+function Detail({ place, loading, error, onBack, isFavorite, onToggleFavorite }) {
   const gallery = useMemo(() => {
     if (!place) return [];
     return [...new Set([place.image, ...(place.images || []).map((image) => image.imageUrl).filter(Boolean)])];
@@ -32,11 +32,11 @@ export default function Detail({ place, loading, error, onBack, isFavorite, onTo
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(290px,0.85fr)] lg:items-start">
         <div>
           <div className="relative overflow-hidden rounded-3xl border border-line bg-surface">
-            <img src={gallery[activeImage] || DEFAULT_IMAGE} alt={place.name} onError={imageError} className="h-[330px] w-full object-cover sm:h-[480px]" fetchPriority="high" />
+             <img src={gallery[activeImage] || DEFAULT_IMAGE} alt={place.name} onError={imageError} className="h-[330px] w-full object-cover sm:h-[480px]" fetchPriority="high" decoding="async" />
             {loading && <div className="absolute inset-0 flex items-center justify-center bg-night/40 backdrop-blur-[2px]"><LoaderCircle size={26} className="animate-spin text-gold" /></div>}
             <span className="absolute bottom-4 left-4 rounded-full bg-clay px-3 py-1.5 font-mono text-[0.62rem] uppercase tracking-[0.12em] text-sand">{place.categoryName || "Saved place"}</span>
           </div>
-          {gallery.length > 1 && <div className="mt-3 flex gap-2 overflow-x-auto">{gallery.map((image, index) => <button type="button" key={image} onClick={() => setActiveImage(index)} className={`h-16 w-20 shrink-0 overflow-hidden rounded-lg border-2 ${activeImage === index ? "border-gold" : "border-line"}`}><img src={image} alt="" onError={imageError} className="h-full w-full object-cover" /></button>)}</div>}
+           {gallery.length > 1 && <div className="mt-3 flex gap-2 overflow-x-auto">{gallery.map((image, index) => <button type="button" key={image} onClick={() => setActiveImage(index)} className={`h-16 w-20 shrink-0 overflow-hidden rounded-lg border-2 ${activeImage === index ? "border-gold" : "border-line"}`}><img src={image} alt="" onError={imageError} loading="lazy" decoding="async" className="h-full w-full object-cover" /></button>)}</div>}
         </div>
 
         <div className="lg:pt-3">
@@ -59,3 +59,5 @@ export default function Detail({ place, loading, error, onBack, isFavorite, onTo
     </main>
   );
 }
+
+export default memo(Detail);
