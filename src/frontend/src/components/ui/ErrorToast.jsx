@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { CircleAlert, X } from "lucide-react";
 
-export default function ErrorToast({ message, onDismiss }) {
+function ErrorToast({ message, onDismiss }) {
   if (!message) return null;
 
   return (
@@ -11,3 +12,5 @@ export default function ErrorToast({ message, onDismiss }) {
     </div>
   );
 }
+
+export default memo(ErrorToast);
