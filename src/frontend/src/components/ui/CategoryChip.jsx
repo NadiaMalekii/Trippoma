@@ -1,7 +1,26 @@
-import { getCategoryIcon } from "../../utils/places";
+import {
+  Activity,
+  Landmark,
+  Mountain,
+  ShoppingBag,
+  Sparkles,
+  Sun,
+  Trees,
+  Waves,
+} from "lucide-react";
+
+const CATEGORY_ICONS = {
+  beaches: Waves,
+  desert: Sun,
+  mountains: Mountain,
+  historical: Landmark,
+  nature: Trees,
+  cultural: ShoppingBag,
+  activities: Activity,
+};
 
 export default function CategoryChip({ category, active, onClick }) {
-  const Icon = getCategoryIcon(category.name);
+  const Icon = CATEGORY_ICONS[category.name?.toLowerCase()] || Sparkles;
   return (
     <button
       type="button"
