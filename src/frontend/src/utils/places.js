@@ -1,14 +1,3 @@
-import {
-  Activity,
-  Landmark,
-  Mountain,
-  ShoppingBag,
-  Sparkles,
-  Sun,
-  Trees,
-  Waves,
-} from "lucide-react";
-
 export const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1500534623283-312aade485b7?w=1200&q=85";
 
@@ -20,16 +9,6 @@ const FALLBACK_IMAGES = {
   "bimmah sinkhole": "https://images.unsplash.com/photo-1580746738099-1cf7b1a9d5f3?w=1200&q=85",
   "jebel akhdar": "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&q=85",
   "wahiba sands": "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1200&q=85",
-};
-
-const CATEGORY_ICONS = {
-  beaches: Waves,
-  desert: Sun,
-  mountains: Mountain,
-  historical: Landmark,
-  nature: Trees,
-  cultural: ShoppingBag,
-  activities: Activity,
 };
 
 export function imageForPlace(place) {
@@ -60,10 +39,6 @@ export function normalizeFavorite(favorite) {
     description: "",
     images: favorite.mainImageUrl ? [{ imageUrl: favorite.mainImageUrl, isMain: true }] : [],
   });
-}
-
-export function getCategoryIcon(name) {
-  return CATEGORY_ICONS[name?.toLowerCase()] || Sparkles;
 }
 
 export function imageError(event) {
