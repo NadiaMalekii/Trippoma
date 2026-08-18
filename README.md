@@ -38,3 +38,13 @@ Built with **Clean Architecture** on the backend and a modern **React + Vite + T
 ---
 
 ## Project Structure
+Trippoma/
+├── src/
+│   ├── backend/
+│   │   ├── Trippoma.Domain
+│   │   ├── Trippoma.Application
+│   │   ├── Trippoma.Infrastructure
+│   │   └── Trippoma.WebApi
+│   └── frontend/               # React + Vite + Tailwind
+├── Trippoma.slnx
+└── README.md
