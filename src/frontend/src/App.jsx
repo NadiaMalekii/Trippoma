@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { lazy, startTransition, Suspense, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import {
   addFavorite,
   getCategories,
@@ -11,16 +11,25 @@ import {
   removeFavorite,
   setSession as persistSession,
 } from "./api";
-import AuthModal from "./components/auth/AuthModal";
 import Footer from "./components/layout/Footer";
 import Header from "./components/layout/Header";
-import Detail from "./components/places/Detail";
-import Explore from "./components/places/Explore";
-import Favorites from "./components/places/Favorites";
-import Home from "./components/home/Home";
 import ErrorToast from "./components/ui/ErrorToast";
 import { normalizePlace } from "./utils/places";
 import { buildRoutePath, readRoute } from "./utils/routes";
+
+const Home = lazy(() => import("./components/home/Home"));
+const Explore = lazy(() => import("./components/places/Explore"));
+const Favorites = lazy(() => import("./components/places/Favorites"));
+const Detail = lazy(() => import("./components/places/Detail"));
+const LazyAuthModal = lazy(() => import("./components/auth/AuthModal"));
+
+function PageFallback() {
+  return (
+    <main className="mx-auto grid min-h-[420px] max-w-7xl place-items-center px-5 py-10 sm:px-8 lg:px-10">
+      <div className="h-10 w-full max-w-2xl animate-pulse rounded-xl bg-surface" />
+    </main>
+  );
+}
 
 export default function App() {
   const [initialRoute] = useState(readRoute);
@@ -50,7 +59,20 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState("");
 
-  function applyRoute(route) {
+  const routeState = useRef({ detailPlaceId, search, cityFilter, activeCategory });
+  routeState.current = { detailPlaceId, search, cityFilter, activeCategory };
+  const sessionRef = useRef(session);
+  sessionRef.current = session;
+  const favoriteIdsRef = useRef(favoriteIds);
+  favoriteIdsRef.current = favoriteIds;
+  const favoritesRef = useRef(favorites);
+  favoritesRef.current = favorites;
+  const catalogPlacesRef = useRef(catalogPlaces);
+  catalogPlacesRef.current = catalogPlaces;
+
+  const favoriteIdSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
+
+  const applyRoute = useCallback((route) => {
     setView(route.view);
 
     if (route.view === "places") {
@@ -66,7 +88,7 @@ export default function App() {
       setDetailPlaceId(null);
       setSelectedPlace(null);
     }
-  }
+  }, []);
 
   useEffect(() => {
     if (!initialRoute.valid) window.history.replaceState({}, "", "/");
@@ -84,7 +106,7 @@ export default function App() {
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
+  }, [applyRoute, initialRoute.valid]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -123,7 +145,10 @@ export default function App() {
       setPlacesLoading(true);
       setPlacesError("");
       getPlaces({ search: deferredSearch.trim() || undefined, city: cityFilter || undefined, categoryId: activeCategory || undefined, signal: controller.signal })
-        .then((data) => setPlaces(data.map(normalizePlace)))
+        .then((data) => {
+          const normalized = data.map(normalizePlace);
+          startTransition(() => setPlaces(normalized));
+        })
         .catch((error) => {
           if (error.name !== "AbortError") setPlacesError(error.message);
         })
@@ -193,54 +218,62 @@ export default function App() {
 
   const cities = useMemo(() => [...new Set(catalogPlaces.map((place) => place.city).filter(Boolean))].sort(), [catalogPlaces]);
 
-  function navigate(nextView, options = {}) {
+  const navigate = useCallback((nextView, options = {}) => {
+    const current = routeState.current;
     const nextRoute = {
       view: nextView,
-      placeId: nextView === "detail" ? options.placeId || detailPlaceId : null,
-      search: nextView === "places" ? options.search ?? search : "",
-      city: nextView === "places" ? options.city ?? cityFilter : "",
-      categoryId: nextView === "places" ? options.categoryId ?? activeCategory : null,
+      placeId: nextView === "detail" ? options.placeId || current.detailPlaceId : null,
+      search: nextView === "places" ? options.search ?? current.search : "",
+      city: nextView === "places" ? options.city ?? current.cityFilter : "",
+      categoryId: nextView === "places" ? options.categoryId ?? current.activeCategory : null,
     };
     const path = buildRoutePath(nextRoute.view, nextRoute);
     const currentPath = `${window.location.pathname}${window.location.search}`;
     if (path !== currentPath) window.history.pushState({}, "", path);
     applyRoute({ valid: true, ...nextRoute });
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }
+  }, [applyRoute]);
 
-  function updatePlacesFilters(nextFilters = {}) {
+  const updatePlacesFilters = useCallback((nextFilters = {}) => {
+    const current = routeState.current;
     const nextValues = {
-      search: nextFilters.search ?? search,
-      city: nextFilters.city ?? cityFilter,
-      categoryId: nextFilters.categoryId === undefined ? activeCategory : nextFilters.categoryId,
+      search: nextFilters.search ?? current.search,
+      city: nextFilters.city ?? current.cityFilter,
+      categoryId: nextFilters.categoryId === undefined ? current.activeCategory : nextFilters.categoryId,
     };
     setSearch(nextValues.search);
     setCityFilter(nextValues.city);
     setActiveCategory(nextValues.categoryId || null);
     window.history.replaceState({}, "", buildRoutePath("places", nextValues));
-  }
+  }, []);
 
-  function chooseCategory(categoryId) {
+  const chooseCategory = useCallback((categoryId) => {
     navigate("places", { categoryId });
-  }
+  }, [navigate]);
 
-  function resetFilters() {
+  const resetFilters = useCallback(() => {
     updatePlacesFilters({ search: "", city: "", categoryId: null });
-  }
+  }, [updatePlacesFilters]);
 
-  function openPlace(place) {
+  const openPlace = useCallback((place) => {
     setSelectedPlace(place);
     setDetailError("");
     navigate("detail", { placeId: place.id });
-  }
+  }, [navigate]);
 
-  async function toggleFavorite(placeId) {
-    if (!session?.token) {
+  const openAuth = useCallback(() => {
+    setAuthMode("login");
+    setAuthError("");
+    setShowAuth(true);
+  }, []);
+
+  const toggleFavorite = useCallback(async (placeId) => {
+    if (!sessionRef.current?.token) {
       openAuth();
       return;
     }
-    const isCurrentlyFavorite = favoriteIds.includes(placeId);
-    const previousFavorites = favorites;
+    const isCurrentlyFavorite = favoriteIdsRef.current.includes(placeId);
+    const previousFavorites = favoritesRef.current;
     setAppError("");
     setFavoriteIds((current) => isCurrentlyFavorite ? current.filter((id) => id !== placeId) : [...current, placeId]);
     setFavorites((current) => isCurrentlyFavorite ? current.filter((favorite) => favorite.placeId !== placeId) : current);
@@ -248,7 +281,7 @@ export default function App() {
       if (isCurrentlyFavorite) await removeFavorite(placeId);
       else {
         await addFavorite(placeId);
-        const place = [...places, ...catalogPlaces].find((item) => item.id === placeId);
+        const place = catalogPlacesRef.current.find((item) => item.id === placeId);
         if (place) setFavorites((current) => [{ placeId, name: place.name, city: place.city, mainImageUrl: place.image, createdAt: new Date().toISOString() }, ...current]);
       }
     } catch (error) {
@@ -260,13 +293,16 @@ export default function App() {
       }
       setAppError(error.message);
     }
-  }
+  }, [openAuth]);
 
-  async function submitAuth(form) {
+  const authModeRef = useRef(authMode);
+  authModeRef.current = authMode;
+
+  const submitAuth = useCallback(async (form) => {
     setAuthLoading(true);
     setAuthError("");
     try {
-      const result = authMode === "login" ? await login({ email: form.email, password: form.password }) : await register(form);
+      const result = authModeRef.current === "login" ? await login({ email: form.email, password: form.password }) : await register(form);
       persistSession(result);
       setSession(result);
       setShowAuth(false);
@@ -275,32 +311,45 @@ export default function App() {
     } finally {
       setAuthLoading(false);
     }
-  }
+  }, []);
 
-  function openAuth() {
-    setAuthMode("login");
+  const handleAuthModeChange = useCallback((mode) => {
+    setAuthMode(mode);
     setAuthError("");
-    setShowAuth(true);
-  }
+  }, []);
 
-  function logout() {
+  const logout = useCallback(() => {
     persistSession(null);
     setSession(null);
     navigate("home");
-  }
+  }, [navigate]);
+
+  const handleSearchChange = useCallback((value) => updatePlacesFilters({ search: value }), [updatePlacesFilters]);
+  const handleCityChange = useCallback((value) => updatePlacesFilters({ city: value }), [updatePlacesFilters]);
+  const handleCategoryChange = useCallback((value) => updatePlacesFilters({ categoryId: value }), [updatePlacesFilters]);
+  const handleExplore = useCallback(() => navigate("places"), [navigate]);
+  const handleBackToExplore = useCallback(() => navigate("places"), [navigate]);
+  const handleCloseAuth = useCallback(() => setShowAuth(false), []);
+  const handleDismissError = useCallback(() => setAppError(""), []);
 
   return (
     <div className="min-h-screen bg-night text-sand">
       <Header view={view} session={session} favoriteCount={favoriteIds.length} onNavigate={navigate} onOpenAuth={openAuth} onLogout={logout} />
-      {view === "home" && <Home categories={categories} places={places} loading={placesLoading && !catalogReady} activeCategory={activeCategory} onCategory={chooseCategory} onExplore={() => navigate("places")} onOpenPlace={openPlace} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} error={placesError} />}
-      {view === "places" && <Explore categories={categories} places={places} loading={placesLoading} error={placesError} search={search} onSearchChange={(value) => updatePlacesFilters({ search: value })} cityFilter={cityFilter} onCityChange={(value) => updatePlacesFilters({ city: value })} cities={cities} activeCategory={activeCategory} onCategory={(value) => updatePlacesFilters({ categoryId: value })} onReset={resetFilters} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onOpenPlace={openPlace} />}
-      {view === "detail" && <Detail place={selectedPlace} loading={detailLoading} error={detailError} onBack={() => navigate("places")} isFavorite={favoriteIds.includes(selectedPlace?.id)} onToggleFavorite={toggleFavorite} />}
-      {view === "favorites" && <Favorites session={session} favorites={favorites} loading={favoritesLoading} error={favoritesError || appError} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onOpenPlace={openPlace} onOpenAuth={openAuth} />}
+      <Suspense fallback={<PageFallback />}>
+        {view === "home" && <Home categories={categories} places={places} loading={placesLoading && !catalogReady} activeCategory={activeCategory} onCategory={chooseCategory} onExplore={handleExplore} onOpenPlace={openPlace} favoriteIdSet={favoriteIdSet} onToggleFavorite={toggleFavorite} error={placesError} />}
+        {view === "places" && <Explore categories={categories} places={places} loading={placesLoading} error={placesError} search={search} onSearchChange={handleSearchChange} cityFilter={cityFilter} onCityChange={handleCityChange} cities={cities} activeCategory={activeCategory} onCategory={handleCategoryChange} onReset={resetFilters} favoriteIdSet={favoriteIdSet} onToggleFavorite={toggleFavorite} onOpenPlace={openPlace} />}
+        {view === "detail" && <Detail place={selectedPlace} loading={detailLoading} error={detailError} onBack={handleBackToExplore} isFavorite={favoriteIdSet.has(selectedPlace?.id)} onToggleFavorite={toggleFavorite} />}
+        {view === "favorites" && <Favorites session={session} favorites={favorites} loading={favoritesLoading} error={favoritesError || appError} favoriteIdSet={favoriteIdSet} onToggleFavorite={toggleFavorite} onOpenPlace={openPlace} onOpenAuth={openAuth} />}
+      </Suspense>
 
-      <ErrorToast message={view !== "favorites" ? appError : ""} onDismiss={() => setAppError("")} />
+      <ErrorToast message={view !== "favorites" ? appError : ""} onDismiss={handleDismissError} />
       <Footer />
 
-      {showAuth && <AuthModal mode={authMode} onModeChange={(mode) => { setAuthMode(mode); setAuthError(""); }} onClose={() => setShowAuth(false)} onSubmit={submitAuth} loading={authLoading} error={authError} />}
+      {showAuth && (
+        <Suspense fallback={null}>
+          <LazyAuthModal mode={authMode} onModeChange={handleAuthModeChange} onClose={handleCloseAuth} onSubmit={submitAuth} loading={authLoading} error={authError} />
+        </Suspense>
+      )}
     </div>
   );
 }
