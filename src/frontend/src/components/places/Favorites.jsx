@@ -1,8 +1,11 @@
+import { memo, useMemo } from "react";
 import { LogIn } from "lucide-react";
 import { normalizeFavorite } from "../../utils/places";
 import PlaceGrid from "../ui/PlaceGrid";
 
-export default function Favorites({ session, favorites, loading, error, favoriteIds, onToggleFavorite, onOpenPlace, onOpenAuth }) {
+function Favorites({ session, favorites, loading, error, favoriteIdSet, onToggleFavorite, onOpenPlace, onOpenAuth }) {
+  const savedPlaces = useMemo(() => favorites.map(normalizeFavorite), [favorites]);
+
   if (!session) {
     return (
       <main className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
@@ -15,8 +18,6 @@ export default function Favorites({ session, favorites, loading, error, favorite
       </main>
     );
   }
-
-  const savedPlaces = favorites.map(normalizeFavorite);
 
   return (
     <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10 lg:py-14">
@@ -32,7 +33,7 @@ export default function Favorites({ session, favorites, loading, error, favorite
           error={error}
           skeletonCount={3}
           emptyMessage="Nothing saved yet. Tap the heart on any place to keep it close."
-          favoriteIds={favoriteIds}
+          favoriteIdSet={favoriteIdSet}
           onToggleFavorite={onToggleFavorite}
           onOpenPlace={onOpenPlace}
         />
@@ -40,3 +41,5 @@ export default function Favorites({ session, favorites, loading, error, favorite
     </main>
   );
 }
+
+export default memo(Favorites);
