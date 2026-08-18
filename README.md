@@ -36,15 +36,24 @@ Built with **Clean Architecture** on the backend and a modern **React + Vite + T
 | Icons        | Lucide React                            |
 
 ---
+# Project Overview
 
+| Component | Technology |
+|-----------|------------|
+| **Architecture** | Clean Architecture + CQRS style |
+| **Frontend** | React + Vite + Tailwind CSS |
+| **Icons** | Lucide React |
 
-## Trippoma/
-├── src/
-│ ├── backend/
-│ │ ├── Trippoma.Domain
-│ │ ├── Trippoma.Application
-│ │ ├── Trippoma.Infrastructure
-│ │ └── Trippoma.WebApi
-│ └── frontend/ # React + Vite + Tailwind
-├── Trippoma.slnx
-└── README.md
+---
+
+# Project Structure
+
+| Component | Technology |
+|-----------|------------|
+| **Architecture** | Clean Architecture + CQRS style |
+| **Frontend** | React + Vite + Tailwind CSS |
+| **Icons** | Lucide React |
+
+---
+
+# Project Structure
