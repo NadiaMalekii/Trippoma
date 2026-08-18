@@ -38,12 +38,13 @@ Built with **Clean Architecture** on the backend and a modern **React + Vite + T
 ---
 
 
-## Key Improvements:
-
-1. **Proper heading** - Added `#` for the main title
-2. **Code block** - Wrapped the structure in triple backticks for monospace formatting
-3. **Tree structure** - Used ASCII tree characters (├──, └──, │) for visual hierarchy
-4. **Indentation** - Proper nesting to show folder relationships
-5. **Comments** - Kept the frontend note as a comment
-
-This format will render cleanly in any Markdown viewer and clearly shows the project's folder hierarchy.
+## Trippoma/
+├── src/
+│ ├── backend/
+│ │ ├── Trippoma.Domain
+│ │ ├── Trippoma.Application
+│ │ ├── Trippoma.Infrastructure
+│ │ └── Trippoma.WebApi
+│ └── frontend/ # React + Vite + Tailwind
+├── Trippoma.slnx
+└── README.md
