@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import { Compass, LogIn, Menu, UserRound, X } from "lucide-react";
 
-export default function Header({ view, session, favoriteCount, onNavigate, onOpenAuth, onLogout }) {
+function Header({ view, session, favoriteCount, onNavigate, onOpenAuth, onLogout }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   function navigate(nextView) {
@@ -58,3 +58,5 @@ export default function Header({ view, session, favoriteCount, onNavigate, onOpe
     </header>
   );
 }
+
+export default memo(Header);
