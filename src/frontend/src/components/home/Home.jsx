@@ -1,10 +1,11 @@
+import { memo } from "react";
 import { ArrowUpRight } from "lucide-react";
 import CategoryChip from "../ui/CategoryChip";
 import ContourDivider from "../ui/ContourDivider";
 import PlaceGrid from "../ui/PlaceGrid";
 import Hero from "./Hero";
 
-export default function Home({
+function Home({
   categories,
   places,
   loading,
@@ -12,7 +13,7 @@ export default function Home({
   onCategory,
   onExplore,
   onOpenPlace,
-  favoriteIds,
+  favoriteIdSet,
   onToggleFavorite,
   error,
 }) {
@@ -53,7 +54,7 @@ export default function Home({
             skeletonCount={3}
             emptyMessage="The atlas is waiting for its first field notes."
             onReset={onExplore}
-            favoriteIds={favoriteIds}
+            favoriteIdSet={favoriteIdSet}
             onToggleFavorite={onToggleFavorite}
             onOpenPlace={onOpenPlace}
           />
@@ -73,3 +74,5 @@ export default function Home({
     </main>
   );
 }
+
+export default memo(Home);
