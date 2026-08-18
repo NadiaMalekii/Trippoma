@@ -1,8 +1,9 @@
+import { memo } from "react";
 import { ChevronRight, RotateCcw, Search, X } from "lucide-react";
 import CategoryChip from "../ui/CategoryChip";
 import PlaceGrid from "../ui/PlaceGrid";
 
-export default function Explore({
+function Explore({
   categories,
   places,
   loading,
@@ -15,7 +16,7 @@ export default function Explore({
   activeCategory,
   onCategory,
   onReset,
-  favoriteIds,
+  favoriteIdSet,
   onToggleFavorite,
   onOpenPlace,
 }) {
@@ -60,7 +61,7 @@ export default function Explore({
           error={error}
           skeletonCount={6}
           onReset={onReset}
-          favoriteIds={favoriteIds}
+          favoriteIdSet={favoriteIdSet}
           onToggleFavorite={onToggleFavorite}
           onOpenPlace={onOpenPlace}
         />
@@ -68,3 +69,5 @@ export default function Explore({
     </main>
   );
 }
+
+export default memo(Explore);
